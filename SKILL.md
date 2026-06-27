@@ -198,6 +198,21 @@ node scripts/imap.js [--account <name>] mark-read <uid> [uid2 uid3...]
 node scripts/imap.js [--account <name>] mark-unread <uid> [uid2 uid3...]
 ```
 
+### create-mailbox
+Create a mailbox/folder when it does not already exist.
+
+```bash
+node scripts/imap.js [--account <name>] create-mailbox <name>
+```
+
+### copy / move
+Copy or move message(s) to another mailbox/folder.
+
+```bash
+node scripts/imap.js [--account <name>] copy <uid> [uid2 uid3...] --to <mailbox> [--mailbox INBOX]
+node scripts/imap.js [--account <name>] move <uid> [uid2 uid3...] --to <mailbox> [--mailbox INBOX]
+```
+
 ### list-mailboxes
 List all available mailboxes/folders.
 
