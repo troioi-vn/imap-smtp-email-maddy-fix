@@ -1,6 +1,6 @@
 ---
 name: imap-smtp-email
-description: Read and send email via IMAP/SMTP. Check for new/unread messages, fetch content, search mailboxes, mark as read/unread, create mailboxes, copy or move messages between mailboxes, and send emails with attachments. Supports multiple accounts and servers without the IMAP ID extension, such as Maddy. Works with any IMAP/SMTP server including Gmail, Outlook, 163.com, vip.163.com, 126.com, vip.126.com, 188.com, and vip.188.com.
+description: Read and send email via IMAP/SMTP. Check for new/unread messages, fetch content, search mailboxes, mark as read/unread, create mailboxes, copy or move messages between mailboxes, and send emails with attachments. Supports multiple accounts and servers without the IMAP ID extension, such as Maddy. Passwords can be Passbolt references, which it fetches by running the local passbolt CLI. Works with any IMAP/SMTP server including Gmail, Outlook, 163.com, vip.163.com, 126.com, vip.126.com, 188.com, and vip.188.com.
 metadata:
   openclaw:
     emoji: "📧"
