@@ -40,8 +40,8 @@ Configuration is stored at `~/.config/imap-smtp-email/.env` (survives skill upda
 
 `IMAP_PASS` and `SMTP_PASS` may be either literal passwords or Passbolt secret
 references in the form `passbolt://RESOURCE_ID`. When a Passbolt reference is
-used, the skill resolves the password locally at runtime and does not require
-storing the secret itself in `.env`.
+used, the skill resolves the password at runtime by running the local `passbolt`
+CLI (`passbolt get resource --id ...`), so the secret itself never sits in `.env`.
 
 ### Config file format
 
@@ -305,5 +305,6 @@ Some valid IMAP servers, including Maddy, do not support the optional IMAP `ID` 
 
 **TLS/SSL errors:**
 - Match `IMAP_TLS`/`SMTP_SECURE` setting to server requirements
+- IMAP uses TLS and SMTP refuses to log in without STARTTLS unless the host is `localhost`/`127.0.0.1`/`::1` (a local bridge). Set `IMAP_TLS=false` or `SMTP_REQUIRE_TLS=false` only for such a bridge
 - For a private or self-signed CA: trust that CA instead of turning verification off, for example `NODE_EXTRA_CA_CERTS=/path/to/ca.pem node scripts/imap.js check`
 - Leave `IMAP_REJECT_UNAUTHORIZED` and `SMTP_REJECT_UNAUTHORIZED` at `true`. Setting them to `false` lets anyone on the network path read the password and the mail, so do not suggest it to fix an error

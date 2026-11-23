@@ -11,6 +11,10 @@ const PRIMARY_ENV_PATH = path.join(os.homedir(), '.config', 'imap-smtp-email', '
 const FALLBACK_ENV_PATH = path.resolve(__dirname, '../.env');
 
 // Find the .env file: primary location first, then fallback
+function isLoopback(host) {
+  return ['localhost', '127.0.0.1', '::1'].includes(String(host || '').toLowerCase());
+}
+
 function findEnvPath() {
   if (fs.existsSync(PRIMARY_ENV_PATH)) return PRIMARY_ENV_PATH;
   if (fs.existsSync(FALLBACK_ENV_PATH)) return FALLBACK_ENV_PATH;
@@ -47,7 +51,8 @@ function buildConfig(env, prefix) {
       port: parseInt(env[`${p}IMAP_PORT`]) || 1143,
       user: env[`${p}IMAP_USER`],
       pass: resolveSecretRef(env[`${p}IMAP_PASS`]),
-      tls: env[`${p}IMAP_TLS`] === 'true',
+      // TLS unless explicitly disabled; plaintext only makes sense for a local bridge.
+      tls: env[`${p}IMAP_TLS`] === undefined ? !isLoopback(env[`${p}IMAP_HOST`] || '127.0.0.1') : env[`${p}IMAP_TLS`] === 'true',
       rejectUnauthorized: env[`${p}IMAP_REJECT_UNAUTHORIZED`] !== 'false',
       mailbox: env[`${p}IMAP_MAILBOX`] || 'INBOX',
     },
@@ -57,6 +62,8 @@ function buildConfig(env, prefix) {
       user: env[`${p}SMTP_USER`],
       pass: resolveSecretRef(env[`${p}SMTP_PASS`]),
       secure: env[`${p}SMTP_SECURE`] === 'true',
+      // Without implicit TLS, refuse to authenticate unless STARTTLS succeeds (local bridges excepted).
+      requireTLS: env[`${p}SMTP_REQUIRE_TLS`] === undefined ? !isLoopback(env[`${p}SMTP_HOST`]) : env[`${p}SMTP_REQUIRE_TLS`] === 'true',
       from: env[`${p}SMTP_FROM`] || env[`${p}SMTP_USER`],
       rejectUnauthorized: env[`${p}SMTP_REJECT_UNAUTHORIZED`] !== 'false',
     },
