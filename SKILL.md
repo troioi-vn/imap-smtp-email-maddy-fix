@@ -150,13 +150,16 @@ Without `--account`, the default (unprefixed) account is used.
 Check for new/unread emails.
 
 ```bash
-node scripts/imap.js [--account <name>] check [--limit 10] [--mailbox INBOX] [--recent 2h]
+node scripts/imap.js [--account <name>] check [--limit 10] [--mailbox INBOX] [--recent 2h] [--unseen]
 ```
 
 Options:
 - `--limit <n>`: Max results (default: 10)
 - `--mailbox <name>`: Mailbox to check (default: INBOX)
 - `--recent <time>`: Only show emails from last X time (e.g., 30m, 2h, 7d)
+- `--unseen`: Only unread messages
+
+Results are newest first. Only the newest `--limit` messages are downloaded, so `check` stays fast on large mailboxes. In each result, `date` is when the server received the message (IMAP INTERNALDATE) and `headerDate` is the sender's `Date:` header, which can be wrong or forged.
 
 ### fetch
 Fetch full email content by UID.
@@ -193,7 +196,10 @@ Options:
   --before <date>    Before date (YYYY-MM-DD)
   --limit <n>        Max results (default: 20)
   --mailbox <name>   Mailbox to search (default: INBOX)
+  --sort date        Order by received date instead of UID (slower, see below)
 ```
+
+`--unseen` and `--seen` cannot be combined. By default `search` returns the newest matches by UID and downloads only `--limit` messages. UID order matches arrival order for normally delivered mail. Use `--sort date` in mailboxes that hold copied or imported mail: it downloads every match and sorts by received date.
 
 ### mark-read / mark-unread
 Mark message(s) as read or unread.
@@ -289,7 +295,7 @@ node scripts/smtp.js [--account <name>] test
 
 ### Maddy / servers without IMAP ID
 
-Some valid IMAP servers, including Maddy, do not support the optional IMAP `ID` command. This fork catches synchronous `node-imap` `ID` errors and continues the connection instead of crashing.
+Some valid IMAP servers, including Maddy, do not support the optional IMAP `ID` command (RFC 2971). Upstream sends `ID` unconditionally, and `node-imap` throws when the server does not advertise it. This fork sends `ID` only when the server's capabilities list it, so 163.com still gets it and Maddy is not sent it.
 
 ## Troubleshooting
 

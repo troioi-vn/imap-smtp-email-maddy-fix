@@ -51,8 +51,12 @@ function parseArgs() {
     if (arg.startsWith('--')) {
       const key = arg.slice(2);
       const value = args[i + 1];
-      options[key] = value || true;
-      if (value && !value.startsWith('--')) i++;
+      if (value !== undefined && !value.startsWith('--')) {
+        options[key] = value;
+        i++;
+      } else {
+        options[key] = true;
+      }
     } else {
       positional.push(arg);
     }
@@ -251,7 +255,14 @@ async function main() {
           validateReadPath(options['html-file']);
           options.html = fs.readFileSync(options['html-file'], 'utf8');
         } else if (options.body) {
-          options.text = options.body;
+          if (options.html === true) {
+            options.html = options.body; // --html marks --body as HTML
+          } else {
+            options.text = options.body;
+          }
+        }
+        if (options.html === true) {
+          delete options.html; // bare --html with no HTML content
         }
 
         result = await sendEmailWithContent(options);
